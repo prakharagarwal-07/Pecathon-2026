@@ -64,7 +64,91 @@ export function cleanImageUrl(raw?: string | null): string {
     clean = "https:" + clean;
   }
   if (!/^https?:\/\//i.test(clean)) return "";
+  // Filter out tracking pixels, ad beacons, and transparent 1x1 gifs
+  if (
+    /feeds\.feedburner\.com|feedads|stats\.wordpress\.com|\.gif(\?|$)|1x1|pixel|spacer/i.test(
+      clean
+    )
+  ) {
+    return "";
+  }
   return clean;
+}
+
+export function formatCleanExcerpt(
+  rawExcerpt?: string | null,
+  title?: string,
+  blogName?: string
+): string {
+  if (!rawExcerpt) {
+    return title
+      ? `Essay on "${title}" from ${blogName || "curated library"}.`
+      : "Independent publication and essay from your curated library.";
+  }
+
+  let text = rawExcerpt
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // 1. Check for Hacker News / aggregator style boilerplate: "Article URL: ... Comments URL: ... Points: X # Comments: Y"
+  const isHnStyle = /Article URL:|Comments URL:|Points:\s*\d+/i.test(text);
+  if (isHnStyle) {
+    const pointsMatch = text.match(/Points:\s*(\d+)/i);
+    const commentsMatch = text.match(/(?:#\s*Comments|Comments):\s*(\d+)/i);
+    const domainMatch = text.match(/Article URL:\s*https?:\/\/(?:www\.)?([^/\s]+)/i);
+
+    const points = pointsMatch ? pointsMatch[1] : null;
+    const comments = commentsMatch ? commentsMatch[1] : null;
+    const domain = domainMatch ? domainMatch[1] : null;
+
+    if (points && comments) {
+      return `Discussion with ${points} points and ${comments} comments on Hacker News.${
+        domain ? ` Originally published on ${domain}.` : ""
+      }`;
+    } else if (domain) {
+      return `Recommended publication originally published on ${domain}. Read the full article or explore discussion.`;
+    }
+  }
+
+  // 2. Strip standalone boilerplate "Article URL:", "Comments URL:", "Read more at:", etc.
+  text = text
+    .replace(/Article URL:\s*https?:\/\/[^\s]+/gi, "")
+    .replace(/Comments URL:\s*https?:\/\/[^\s]+/gi, "")
+    .replace(/Read more at:\s*https?:\/\/[^\s]+/gi, "")
+    .replace(/Source:\s*https?:\/\/[^\s]+/gi, "")
+    .replace(/The post .* appeared first on .*/gi, "")
+    .replace(/\bhttps?:\/\/[^\s]+/gi, "") // remove any remaining raw URLs
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // 3. Remove dangling punctuation or ellipsis at start or end
+  text = text.replace(/^[•\s\-,:;|.]+/, "").replace(/[•\s\-,:;|.]+$/, "").trim();
+
+  // 4. If nothing meaningful remains or text is too short, provide a clean literary fallback
+  if (text.length < 15) {
+    if (title && blogName) {
+      return `Latest essay on "${title}", curated from ${blogName}.`;
+    } else if (title) {
+      return `Essay on "${title}". Open to read the full text.`;
+    }
+    return "Essays and writings from your personal Small Web library.";
+  }
+
+  // 5. Ensure it ends cleanly without cutting mid-word
+  if (text.length > 210) {
+    const cut = text.slice(0, 210);
+    const lastSpace = cut.lastIndexOf(" ");
+    text = (lastSpace > 140 ? cut.slice(0, lastSpace) : cut) + "...";
+  }
+
+  return text;
 }
 
 function cleanText(raw?: string | null): string {
@@ -259,7 +343,7 @@ export function parseFeedXml(xmlString: string, feedUrl: string): ParsedFeed {
         const summaryText = getTagText(entry, "summary");
         const contentText = getTagText(entry, "content") || summaryText;
 
-        const excerpt = cleanText(summaryText || contentText).slice(0, 220) + "...";
+        const excerpt = formatCleanExcerpt(summaryText || contentText, title, feedTitle);
         const readTime = calculateReadingTime(contentText || summaryText);
 
         // Robust Image Extraction: Media, Enclosure, or inline <img>
@@ -327,7 +411,7 @@ export function parseFeedXml(xmlString: string, feedUrl: string): ParsedFeed {
         const description = getTagText(item, "description");
         const rawContent = encodedContent || description;
 
-        const excerpt = cleanText(description || encodedContent).slice(0, 220) + "...";
+        const excerpt = formatCleanExcerpt(description || encodedContent, title, feedTitle);
         const readTime = calculateReadingTime(rawContent);
 
         // Robust Image Extraction: Enclosure, Media, or inline <img>
@@ -406,7 +490,7 @@ export function parseFeedXml(xmlString: string, feedUrl: string): ParsedFeed {
       const title = cleanText(titleMatch ? titleMatch[1] : "Untitled Entry");
       const url = cleanText(linkMatch ? linkMatch[1] : feedUrl);
       const content = descMatch ? descMatch[1] : "";
-      const excerpt = cleanText(content).slice(0, 220) + "...";
+      const excerpt = formatCleanExcerpt(content, title, feedTitle);
       const timestamp = dateMatch ? new Date(dateMatch[1]).getTime() : Date.now();
 
       // Image from block

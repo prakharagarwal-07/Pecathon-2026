@@ -51,6 +51,7 @@ import {
   ParsedArticle,
   getFallbackImage,
   cleanImageUrl,
+  formatCleanExcerpt,
 } from "@/lib/client/feedParser";
 import { extractFullArticle } from "@/lib/client/articleExtractor";
 import {
@@ -367,10 +368,11 @@ export default function ReaderDashboard() {
       const storedSubs = await loadStoredSubscriptions(INITIAL_SUBSCRIPTIONS as any);
       let storedArts = await loadStoredArticles(INITIAL_ARTICLES as any);
 
-      // Clean/sanitize existing cached article images (repairs &#038; entities or broken IDs)
+      // Clean/sanitize existing cached article images and excerpts (repairs raw URLs or broken IDs)
       storedArts = storedArts.map((a) => ({
         ...a,
         image: cleanImageUrl(a.image) || getFallbackImage(a.id),
+        excerpt: formatCleanExcerpt(a.excerpt, a.title, a.blogName),
       }));
 
       if (!isMounted) return;
@@ -1763,7 +1765,7 @@ export default function ReaderDashboard() {
                           <p className={`font-serif text-xs sm:text-sm line-clamp-2 leading-relaxed ${
                             isDark ? "text-[#aba092]" : "text-[#6b5f50]"
                           }`}>
-                            {article.excerpt}
+                            {formatCleanExcerpt(article.excerpt, article.title, article.blogName)}
                           </p>
 
                           {/* Quick Bottom Actions */}
