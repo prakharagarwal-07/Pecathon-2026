@@ -1554,10 +1554,10 @@ export default function ReaderDashboard() {
           </div>
 
           {/* Zero Surveillance Philosophy Card */}
-          <div className={`p-3.5 rounded-2xl border space-y-2 mt-4 transition-colors relative overflow-hidden ${
+          <div className={`p-3.5 rounded-2xl border space-y-2 mt-4 transition-all relative overflow-hidden ${
             isDark
-              ? "bg-[#1f1c19] border-[#38332c] text-[#f5efe6]"
-              : "bg-[#f2e9db]/70 border-[#e2d6c3] text-[#78350f]"
+              ? "bg-[#1f1c19] border-[#38332c] shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-[#f5efe6]"
+              : "bg-[#f4ece1]/80 border-[#ded2bf] shadow-[0_2px_8px_rgba(115,92,66,0.05)] text-[#78350f]"
           }`}>
             <BlogCardSpotlight isDark={isDark} variant="yellow" size={110} />
             <div className="relative z-10 space-y-2">
@@ -1725,10 +1725,10 @@ export default function ReaderDashboard() {
                       <motion.article
                         key={article.id}
                         onClick={() => handleSelectArticle(article)}
-                        className={`group p-5 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row gap-5 items-start relative overflow-hidden ${
+                        className={`group p-5 rounded-2xl border transition-all duration-300 ease-out cursor-pointer flex flex-col sm:flex-row gap-5 items-start relative overflow-hidden ${
                           isDark
-                            ? "border-[#2d2924] hover:border-[#fbbf24]/40 hover:shadow-lg bg-[#181614] text-[#f5efe6]"
-                            : "border-[#e8dfd1] hover:border-[#b45309]/40 hover:shadow-md bg-[#fdfaf5] text-[#1f1c19]"
+                            ? "border-[#2d2924] hover:border-[#fbbf24]/50 shadow-[0_2px_8px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.6)] hover:-translate-y-0.5 bg-[#181614] text-[#f5efe6]"
+                            : "border-[#e4d8c7] hover:border-[#b45309]/50 shadow-[0_2px_10px_rgba(115,92,66,0.06),0_1px_3px_rgba(115,92,66,0.04)] hover:shadow-[0_12px_30px_rgba(115,92,66,0.12),0_2px_6px_rgba(115,92,66,0.06)] hover:-translate-y-0.5 bg-[#fffdfa] text-[#1f1c19]"
                         }`}
                       >
                         <BlogCardSpotlight isDark={isDark} variant="orange" size={170} />
@@ -1771,15 +1771,17 @@ export default function ReaderDashboard() {
                           {/* Quick Bottom Actions */}
                           <div className="flex items-center justify-between pt-2">
                             <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                                isDark ? "bg-[#25211c] text-amber-300" : "bg-[#f4ece1] text-[#78350f]"
+                              <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full font-medium ${
+                                isDark
+                                  ? "bg-[#25211c] text-amber-300 border border-amber-900/30"
+                                  : "bg-[#f4ece1] text-[#78350f] border border-[#e5d8c6] shadow-2xs"
                               }`}>
                                 {article.category}
                               </span>
 
                               {/* Reading Progress Percentage Indicator */}
                               {!article.unread ? (
-                                <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full flex items-center gap-1 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                                <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/40">
                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                   <span>100% read</span>
                                 </span>
@@ -1831,8 +1833,10 @@ export default function ReaderDashboard() {
                         </div>
 
                         {/* Editorial Thumbnail */}
-                        <div className={`w-full sm:w-40 h-28 rounded-xl overflow-hidden border flex-shrink-0 shadow-xs relative z-10 ${
-                          isDark ? "border-[#2d2924] bg-[#1c1a17]" : "border-[#e8dfd1] bg-[#f4ece1]"
+                        <div className={`w-full sm:w-40 h-28 rounded-xl overflow-hidden border flex-shrink-0 relative z-10 transition-shadow duration-300 ${
+                          isDark
+                            ? "border-[#2d2924] bg-[#1c1a17] shadow-md"
+                            : "border-[#e4d8c7] bg-[#f4ece1] shadow-[0_2px_8px_rgba(120,95,70,0.08)]"
                         }`}>
                           <img
                             src={article.image || getFallbackImage(article.id)}
@@ -1887,10 +1891,10 @@ export default function ReaderDashboard() {
                       <div
                         key={a.id}
                         onClick={() => handleSelectArticle(a)}
-                        className={`p-2.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all shadow-xs relative overflow-hidden ${
+                        className={`p-2.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all duration-200 relative overflow-hidden ${
                           isDark
-                            ? "bg-[#181614] border-[#2d2924] hover:border-[#fbbf24]/50"
-                            : "bg-[#fdfaf5] border-[#e8dfd1] hover:border-[#b45309]/50"
+                            ? "bg-[#181614] border-[#2d2924] shadow-[0_1px_4px_rgba(0,0,0,0.3)] hover:border-[#fbbf24]/50 hover:shadow-md hover:-translate-y-0.5"
+                            : "bg-[#fffdfa] border-[#e4d8c7] shadow-[0_1px_4px_rgba(115,92,66,0.05)] hover:border-[#b45309]/50 hover:shadow-md hover:-translate-y-0.5"
                         }`}
                       >
                         <BlogCardSpotlight isDark={isDark} />
@@ -1917,8 +1921,10 @@ export default function ReaderDashboard() {
               )}
 
               {/* Intentional Web quote card */}
-              <div className={`p-4 rounded-2xl border space-y-2 shadow-xs relative overflow-hidden ${
-                isDark ? "bg-[#181614] border-[#2d2924]" : "bg-[#fdfaf5] border-[#e8dfd1]"
+              <div className={`p-4 rounded-2xl border space-y-2 relative overflow-hidden transition-all ${
+                isDark
+                  ? "bg-[#181614] border-[#2d2924] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+                  : "bg-[#fffdfa] border-[#e4d8c7] shadow-[0_2px_10px_rgba(115,92,66,0.06),0_1px_3px_rgba(115,92,66,0.04)]"
               }`}>
                 <BlogCardSpotlight isDark={isDark} />
                 <div className="relative z-10 space-y-2">
@@ -2016,15 +2022,15 @@ export default function ReaderDashboard() {
 
             <div className="space-y-2">
               {articles.slice(0, 2).map(a => (
-                <div
-                  key={a.id}
-                  onClick={() => handleSelectArticle(a)}
-                  className={`p-2.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all shadow-xs relative overflow-hidden ${
-                    isDark
-                      ? "bg-[#181614] border-[#2d2924] hover:border-[#fbbf24]/50"
-                      : "bg-[#fdfaf5] border-[#e8dfd1] hover:border-[#b45309]/50"
-                  }`}
-                >
+                  <div
+                    key={a.id}
+                    onClick={() => handleSelectArticle(a)}
+                    className={`p-2.5 rounded-xl border flex items-center gap-3 cursor-pointer transition-all duration-200 relative overflow-hidden ${
+                      isDark
+                        ? "bg-[#181614] border-[#2d2924] shadow-[0_1px_4px_rgba(0,0,0,0.3)] hover:border-[#fbbf24]/50 hover:shadow-md hover:-translate-y-0.5"
+                        : "bg-[#fffdfa] border-[#e4d8c7] shadow-[0_1px_4px_rgba(115,92,66,0.05)] hover:border-[#b45309]/50 hover:shadow-md hover:-translate-y-0.5"
+                    }`}
+                  >
                   <BlogCardSpotlight isDark={isDark} />
                   <img
                     src={a.image || getFallbackImage(a.id)}
@@ -2052,8 +2058,10 @@ export default function ReaderDashboard() {
           </div>
 
           {/* Quote Card */}
-          <div className={`p-4 rounded-2xl border space-y-2 shadow-xs relative overflow-hidden ${
-            isDark ? "bg-[#181614] border-[#2d2924]" : "bg-[#fdfaf5] border-[#e8dfd1]"
+          <div className={`p-4 rounded-2xl border space-y-2 relative overflow-hidden transition-all ${
+            isDark
+              ? "bg-[#181614] border-[#2d2924] shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+              : "bg-[#fffdfa] border-[#e4d8c7] shadow-[0_2px_10px_rgba(115,92,66,0.06),0_1px_3px_rgba(115,92,66,0.04)]"
           }`}>
             <BlogCardSpotlight isDark={isDark} />
             <div className="relative z-10 space-y-2">

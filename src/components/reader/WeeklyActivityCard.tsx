@@ -65,10 +65,10 @@ export default function WeeklyActivityCard({
 
   return (
     <div
-      className={`rounded-2xl p-5 shadow-xs space-y-4 border transition-colors select-none relative overflow-hidden ${
+      className={`rounded-2xl p-5 space-y-4 border transition-all duration-300 select-none relative overflow-hidden ${
         isDark
-          ? "bg-[#181614] border-[#2d2924] text-[#f5efe6]"
-          : "bg-[#fdfaf5] border-[#e8dfd1] text-[#1f1c19]"
+          ? "bg-[#181614] border-[#2d2924] shadow-[0_2px_8px_rgba(0,0,0,0.35)] text-[#f5efe6]"
+          : "bg-[#fffdfa] border-[#e4d8c7] shadow-[0_2px_10px_rgba(115,92,66,0.06),0_1px_3px_rgba(115,92,66,0.04)] text-[#1f1c19]"
       } ${className}`}
     >
       <BlogCardSpotlight isDark={isDark} />

@@ -200,7 +200,7 @@ export default function DiscoveryView({
                 return (
                   <div
                     key={rec.feed.id}
-                    className="p-5 rounded-2xl border border-[#e8dfd1] bg-[#fdfaf5] hover:border-[#b45309]/40 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                    className="p-5 rounded-2xl border transition-all duration-300 flex flex-col justify-between space-y-4 border-[#e4d8c7] bg-[#fffdfa] shadow-[0_2px_10px_rgba(115,92,66,0.06),0_1px_3px_rgba(115,92,66,0.04)] hover:border-[#b45309]/50 hover:shadow-[0_12px_28px_rgba(115,92,66,0.12)] hover:-translate-y-0.5"
                   >
                     <div className="space-y-2.5">
                       <div className="flex items-center justify-between">
