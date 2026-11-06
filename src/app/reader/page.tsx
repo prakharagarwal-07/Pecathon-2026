@@ -337,6 +337,8 @@ export default function ReaderDashboard() {
     typeof window !== "undefined" && window.innerWidth < 1280
   );
   const isResizingRef = useRef(false);
+  const leftSidebarRef = useRef<HTMLElement>(null);
+  const latestLeftWidthRef = useRef(270);
 
   // Right Telemetry Sidebar State (also auto-collapsed on mobile — telemetry shown inline instead)
   const [rightSidebarWidth, setRightSidebarWidth] = useState(320);
@@ -344,6 +346,8 @@ export default function ReaderDashboard() {
     typeof window !== "undefined" && window.innerWidth < 1280
   );
   const isRightResizingRef = useRef(false);
+  const rightSidebarRef = useRef<HTMLElement>(null);
+  const latestRightWidthRef = useRef(320);
 
   // Saved Posts Dropdown State
   const [isSavedDropdownOpen, setIsSavedDropdownOpen] = useState(false);
@@ -408,49 +412,116 @@ export default function ReaderDashboard() {
     };
   }, []);
 
-  // Resize Sidebars (Left & Right) Event Listeners
+  // Resize Sidebars (Left & Right) with zero latency via direct DOM + transition suppression
   useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setIsSidebarCollapsed(true);
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isResizingRef.current) {
-        if (e.clientX < 100) {
+    // Restore user preferred sidebar widths
+    try {
+      const savedLeft = localStorage.getItem("sw_left_sidebar_w");
+      if (savedLeft) {
+        const w = parseInt(savedLeft, 10);
+        if (w >= 180 && w <= 450) {
+          setSidebarWidth(w);
+          latestLeftWidthRef.current = w;
+        }
+      }
+      const savedRight = localStorage.getItem("sw_right_sidebar_w");
+      if (savedRight) {
+        const w = parseInt(savedRight, 10);
+        if (w >= 220 && w <= 520) {
+          setRightSidebarWidth(w);
+          latestRightWidthRef.current = w;
+        }
+      }
+    } catch {}
+
+    const handlePointerMove = (clientX: number) => {
+      if (isResizingRef.current && leftSidebarRef.current) {
+        if (clientX < 90) {
           setIsSidebarCollapsed(true);
           isResizingRef.current = false;
-        } else {
-          setIsSidebarCollapsed(false);
-          const newWidth = Math.min(Math.max(e.clientX, 200), 420);
-          setSidebarWidth(newWidth);
+          leftSidebarRef.current.style.transition = "";
+          leftSidebarRef.current.style.width = "0px";
+          document.body.style.cursor = "default";
+          document.body.style.userSelect = "auto";
+          return;
         }
+
+        const newWidth = Math.min(Math.max(clientX, 180), 450);
+        latestLeftWidthRef.current = newWidth;
+        leftSidebarRef.current.style.width = `${newWidth}px`;
       }
-      if (isRightResizingRef.current) {
-        if (window.innerWidth - e.clientX < 100) {
+
+      if (isRightResizingRef.current && rightSidebarRef.current) {
+        const rightDist = window.innerWidth - clientX;
+        if (rightDist < 90) {
           setIsRightSidebarCollapsed(true);
           isRightResizingRef.current = false;
-        } else {
-          setIsRightSidebarCollapsed(false);
-          const newWidth = Math.min(Math.max(window.innerWidth - e.clientX, 240), 480);
-          setRightSidebarWidth(newWidth);
+          rightSidebarRef.current.style.transition = "";
+          rightSidebarRef.current.style.width = "0px";
+          document.body.style.cursor = "default";
+          document.body.style.userSelect = "auto";
+          return;
         }
+
+        const newWidth = Math.min(Math.max(rightDist, 220), 520);
+        latestRightWidthRef.current = newWidth;
+        rightSidebarRef.current.style.width = `${newWidth}px`;
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseMove = (e: MouseEvent) => {
       if (isResizingRef.current || isRightResizingRef.current) {
-        isResizingRef.current = false;
-        isRightResizingRef.current = false;
-        document.body.style.cursor = "default";
-        document.body.style.userSelect = "auto";
+        handlePointerMove(e.clientX);
       }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    const handleTouchMove = (e: TouchEvent) => {
+      if ((isResizingRef.current || isRightResizingRef.current) && e.touches[0]) {
+        handlePointerMove(e.touches[0].clientX);
+      }
+    };
+
+    const handlePointerUp = () => {
+      if (isResizingRef.current) {
+        isResizingRef.current = false;
+        setSidebarWidth(latestLeftWidthRef.current);
+        if (leftSidebarRef.current) {
+          leftSidebarRef.current.style.transition = "";
+        }
+        try {
+          localStorage.setItem("sw_left_sidebar_w", String(latestLeftWidthRef.current));
+        } catch {}
+      }
+
+      if (isRightResizingRef.current) {
+        isRightResizingRef.current = false;
+        setRightSidebarWidth(latestRightWidthRef.current);
+        if (rightSidebarRef.current) {
+          rightSidebarRef.current.style.transition = "";
+        }
+        try {
+          localStorage.setItem("sw_right_sidebar_w", String(latestRightWidthRef.current));
+        } catch {}
+      }
+
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("mouseup", handlePointerUp);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handlePointerUp);
+
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mouseup", handlePointerUp);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handlePointerUp);
     };
   }, []);
 
@@ -1304,6 +1375,7 @@ export default function ReaderDashboard() {
         
         {/* 1. LEFT SIDEBAR (Resizable & Collapsible) */}
         <aside
+          ref={leftSidebarRef}
           style={{
             width: isSidebarCollapsed ? 0 : `${sidebarWidth}px`,
             minWidth: isSidebarCollapsed ? 0 : undefined,
@@ -1578,15 +1650,27 @@ export default function ReaderDashboard() {
           {/* Draggable Resize Handle */}
           {!isSidebarCollapsed && (
             <div
-              onMouseDown={() => {
+              onMouseDown={(e) => {
+                e.preventDefault();
                 isResizingRef.current = true;
+                if (leftSidebarRef.current) {
+                  leftSidebarRef.current.style.transition = "none";
+                }
                 document.body.style.cursor = "col-resize";
                 document.body.style.userSelect = "none";
               }}
-              className="absolute top-0 right-0 w-2 h-full cursor-col-resize hover:bg-[#b45309]/30 transition-colors group z-20 flex items-center justify-center"
+              onTouchStart={() => {
+                isResizingRef.current = true;
+                if (leftSidebarRef.current) {
+                  leftSidebarRef.current.style.transition = "none";
+                }
+              }}
+              className="absolute top-0 -right-2 w-4 h-full cursor-col-resize hover:bg-[#b45309]/15 active:bg-[#b45309]/30 transition-colors group z-20 flex items-center justify-center touch-none select-none"
               title="Drag to resize sidebar"
             >
-              <div className="w-0.5 h-8 bg-[#d6caba] group-hover:bg-[#b45309] rounded-full" />
+              <div className={`w-1 h-8 rounded-full transition-all group-hover:h-12 group-hover:bg-[#b45309] group-active:bg-[#b45309] ${
+                isDark ? "bg-[#38332c]" : "bg-[#d6caba]"
+              }`} />
             </div>
           )}
         </aside>
@@ -1964,6 +2048,7 @@ export default function ReaderDashboard() {
 
         {/* 3. RIGHT SIDEBAR (Telemetry & Reading Focus) */}
         <aside
+          ref={rightSidebarRef}
           style={{ width: isRightSidebarCollapsed ? 0 : `${rightSidebarWidth}px` }}
           className={`border-l flex flex-col justify-between hidden xl:flex relative select-none transition-all duration-300 ease-in-out ${
             isDark ? "border-[#2d2924] bg-[#161413]" : "border-[#e8dfd1] bg-[#f7f2e8]/40"
@@ -1975,15 +2060,27 @@ export default function ReaderDashboard() {
         >
           {/* Draggable Resize Handle on Left Edge of Right Sidebar */}
           <div
-            onMouseDown={() => {
+            onMouseDown={(e) => {
+              e.preventDefault();
               isRightResizingRef.current = true;
+              if (rightSidebarRef.current) {
+                rightSidebarRef.current.style.transition = "none";
+              }
               document.body.style.cursor = "col-resize";
               document.body.style.userSelect = "none";
             }}
-            className="absolute top-0 left-0 w-2 h-full cursor-col-resize hover:bg-[#b45309]/30 transition-colors group z-20 flex items-center justify-center"
+            onTouchStart={() => {
+              isRightResizingRef.current = true;
+              if (rightSidebarRef.current) {
+                rightSidebarRef.current.style.transition = "none";
+              }
+            }}
+            className="absolute top-0 -left-2 w-4 h-full cursor-col-resize hover:bg-[#b45309]/15 active:bg-[#b45309]/30 transition-colors group z-20 flex items-center justify-center touch-none select-none"
             title="Drag to resize telemetry sidebar"
           >
-            <div className={`w-0.5 h-8 rounded-full group-hover:bg-[#b45309] ${isDark ? "bg-[#38332c]" : "bg-[#d6caba]"}`} />
+            <div className={`w-1 h-8 rounded-full transition-all group-hover:h-12 group-hover:bg-[#b45309] group-active:bg-[#b45309] ${
+              isDark ? "bg-[#38332c]" : "bg-[#d6caba]"
+            }`} />
           </div>
 
           {/* Telemetry Header with Collapse Action */}
