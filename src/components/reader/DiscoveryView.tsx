@@ -115,13 +115,13 @@ export default function DiscoveryView({
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f3ecdf] text-[#92400e] text-[11px] font-mono font-medium mb-2">
             <Sparkles className="w-3 h-3 text-[#b45309]" />
-            <span>Anonymous Co-Subscription Intelligence</span>
+            <span>Community Recommendations · 100% Private</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-[#1f1c19]">
             Discover the Small Web
           </h2>
           <p className="font-serif text-xs sm:text-sm text-[#786b59] mt-1.5 max-w-2xl">
-            Recommendations calculated purely from reader subscription overlap. No tracking cookies, no engagement algorithms, and zero persistent user identifiers.
+            Find thoughtful independent blogs recommended by fellow readers. No tracking cookies, no addictive algorithms, and completely private.
           </p>
         </div>
       </div>
@@ -134,24 +134,24 @@ export default function DiscoveryView({
           </div>
           <div className="space-y-1">
             <h4 className="font-serif font-bold text-sm text-[#1f1c19] flex items-center gap-2">
-              <span>Anonymous Contribution Protocol</span>
+              <span>Help Improve Recommendations</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#92400e] border border-[#fde68a]">
-                Task D Rubric
+                100% Anonymous
               </span>
             </h4>
             <p className="font-serif text-xs text-[#786b59] leading-relaxed max-w-xl">
-              When enabled, your client submits subscribed feed URLs as a single anonymous batch to help calculate co-reading weights. No reading history, time spent, or clickstreams are ever shared. Protected by short-lived salted SHA-256 IP rate-limiting.
+              Turn this on to help suggest great blogs to others based on what people read together. We never track your identity, reading history, or time spent — only public blog links are shared anonymously.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 self-end md:self-center">
           <span className="text-xs font-mono font-medium text-[#574e44]">
-            {optIn ? "Opted In" : "Disabled (Private)"}
+            {optIn ? "Sharing (Anonymous)" : "Private (Off)"}
           </span>
           <button
             onClick={handleToggleOptIn}
-            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
+            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${
               optIn ? "bg-[#b45309]" : "bg-[#d6caba]"
             }`}
             title="Toggle anonymous discovery contribution"
