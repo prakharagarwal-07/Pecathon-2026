@@ -219,7 +219,16 @@ export default function DiscoveryView({
                       </div>
 
                       <h4 className="font-serif font-bold text-lg text-[#1f1c19] leading-snug">
-                        {rec.feed.title}
+                        <a
+                          href={rec.feed.siteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:text-[#b45309] transition-colors inline-flex items-center gap-1.5"
+                          title={`Visit ${rec.feed.title}`}
+                        >
+                          <span>{rec.feed.title}</span>
+                          <ExternalLink className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
+                        </a>
                       </h4>
 
                       <p className="font-serif text-xs text-[#6b5f50] leading-relaxed line-clamp-2">

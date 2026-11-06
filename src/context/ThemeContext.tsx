@@ -61,9 +61,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setTheme = (nextTheme: Theme) => {
-    setThemeState(nextTheme);
-    localStorage.setItem("smallweb_theme", nextTheme);
+    // 1. Instantly apply to DOM without waiting for React cycle
     applyTheme(nextTheme);
+    // 2. Persist synchronously
+    try {
+      localStorage.setItem("smallweb_theme", nextTheme);
+    } catch {}
+    // 3. Update React context state
+    setThemeState(nextTheme);
   };
 
   const toggleTheme = () => {

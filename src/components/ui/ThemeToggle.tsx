@@ -48,17 +48,17 @@ export default function ThemeToggle({
       } ${className}`}
     >
       <div className="relative w-4 h-4 flex items-center justify-center overflow-hidden">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false}>
           {isDark ? (
             <motion.div
               key="sun"
               initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
               animate={{ rotate: 0, scale: 1, opacity: 1 }}
               exit={{ rotate: 90, scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               className="absolute inset-0 flex items-center justify-center"
             >
-              <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
+              <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-200" />
             </motion.div>
           ) : (
             <motion.div
@@ -66,10 +66,10 @@ export default function ThemeToggle({
               initial={{ rotate: 90, scale: 0.5, opacity: 0 }}
               animate={{ rotate: 0, scale: 1, opacity: 1 }}
               exit={{ rotate: -90, scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               className="absolute inset-0 flex items-center justify-center"
             >
-              <Moon className="w-4 h-4 text-[#574e44] group-hover:-rotate-12 transition-transform duration-300" />
+              <Moon className="w-4 h-4 text-[#574e44] group-hover:-rotate-12 transition-transform duration-200" />
             </motion.div>
           )}
         </AnimatePresence>

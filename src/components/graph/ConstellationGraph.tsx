@@ -161,10 +161,47 @@ const DEFAULT_NODES: GraphNode[] = [
     readersCount: 2300,
     description: "Elegant longform essays on databases, idempotency, and Postgres reliability.",
     recentTitle: "Doing Fast Work on Slow Hardware"
+  },
+  {
+    id: "wordpress",
+    name: "WordPress News",
+    initial: "W",
+    domain: "wordpress.org",
+    category: "Design",
+    isSubscribed: false,
+    readersCount: 8900,
+    description: "Official releases, core updates, and open web publishing stories from the CMS powering the web.",
+    recentTitle: "The Philosophy of the Open Web and Decentralized Publishing"
+  },
+  {
+    id: "smashing",
+    name: "Smashing Magazine",
+    initial: "S",
+    domain: "smashingmagazine.com",
+    category: "Design",
+    isSubscribed: false,
+    readersCount: 7400,
+    description: "Editorial masterclasses on CSS, frontend engineering, UX architecture, and modern typography.",
+    recentTitle: "Designing Calm Interfaces for Focused Minds"
+  },
+  {
+    id: "csstricks",
+    name: "CSS-Tricks",
+    initial: "C",
+    domain: "css-tricks.com",
+    category: "Design",
+    isSubscribed: false,
+    readersCount: 6800,
+    description: "Iconic web design publication dedicated to CSS layouts, modern frontend patterns, and creative code.",
+    recentTitle: "Complete Guide to Modern Layout Grids and Micro-Interactions"
   }
 ];
 
 const DEFAULT_EDGES: GraphEdge[] = [
+  { source: "wordpress", target: "alistapart", overlap: 86 },
+  { source: "smashing", target: "csstricks", overlap: 93 },
+  { source: "smashing", target: "alistapart", overlap: 88 },
+  { source: "csstricks", target: "maggie", overlap: 76 },
   { source: "marginalian", target: "robin", overlap: 84 },
   { source: "marginalian", target: "maggie", overlap: 78 },
   { source: "danluu", target: "jvns", overlap: 91 },

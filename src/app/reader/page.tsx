@@ -1326,15 +1326,14 @@ export default function ReaderDashboard() {
               </span>
               <button
                 onClick={() => setIsSidebarCollapsed(true)}
-                className={`p-1 rounded-md transition-colors relative overflow-hidden ${
+                className={`p-1 rounded-md transition-colors ${
                   isDark
                     ? "text-[#a89d8f] hover:text-[#fbbf24] hover:bg-[#25211c]"
                     : "text-[#8c7e6c] hover:text-[#b45309] hover:bg-[#ebdcc8]/50"
                 }`}
                 title="Collapse sidebar"
               >
-                <BlogCardSpotlight isDark={isDark} variant="yellow" size={50} />
-                <PanelLeftClose className="w-3.5 h-3.5 relative z-10" />
+                <PanelLeftClose className="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -1590,15 +1589,18 @@ export default function ReaderDashboard() {
           )}
         </aside>
 
-        {/* Floating Expand Button when Sidebar is Collapsed */}
+        {/* Floating Expand Button when Sidebar is Collapsed (matches Right Panel Expand Button) */}
         {isSidebarCollapsed && (
           <button
             onClick={() => setIsSidebarCollapsed(false)}
-            className="flex absolute left-4 top-4 z-30 p-2.5 rounded-xl bg-[#fdfaf5] border border-[#e2d6c3] shadow-md text-[#574e44] hover:text-[#b45309] hover:bg-[#f4ece1] transition-all items-center justify-center group relative overflow-hidden"
-            title="Expand sidebar"
+            className={`flex absolute left-4 top-4 z-30 p-2 rounded-xl shadow-md transition-all items-center justify-center group ${
+              isDark
+                ? "bg-[#181614] border border-[#2d2924] text-[#a89d8f] hover:text-[#fbbf24] hover:bg-[#25211c]"
+                : "bg-[#fdfaf5] border border-[#e2d6c3] text-[#574e44] hover:text-[#b45309] hover:bg-[#f4ece1]"
+            }`}
+            title="Expand navigation sidebar"
           >
-            <BlogCardSpotlight isDark={isDark} variant="yellow" size={60} />
-            <PanelLeftOpen className="w-4 h-4 text-[#b45309] group-hover:scale-110 transition-transform relative z-10" />
+            <PanelLeftOpen className="w-4 h-4 text-[#b45309] group-hover:scale-110 transition-transform" />
           </button>
         )}
 
