@@ -275,39 +275,96 @@ export default function PerspectiveTunnelHero() {
     });
 
     useEffect(() => {
+        // ── MOUSE WHEEL ────────────────────────────────────────────────────────
         const handleWheel = (e: WheelEvent) => {
             const current = rawProgress.get();
             const smooth = smoothProgress.get();
 
-            // When user is at the top, strictly lock and prevent page scroll until 3D tunnel completes
             if (window.scrollY <= 10) {
                 if (current < 0.98 || smooth < 0.94) {
                     e.preventDefault();
                     window.scrollTo(0, 0);
-                    // Bounded smooth advancement
                     const delta = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY) * 0.0005, 0.035);
-                    const next = Math.min(1, Math.max(0, current + delta));
-                    rawProgress.set(next);
+                    rawProgress.set(Math.min(1, Math.max(0, current + delta)));
                     return;
                 }
-
-                // If tunnel has completed and user is continuing to scroll down, allow native scroll
-                if (e.deltaY > 0) {
-                    return;
-                }
-
-                // If at top and scrolling UP, reverse tunnel
+                if (e.deltaY > 0) return;
                 if (e.deltaY < 0) {
                     e.preventDefault();
                     const delta = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY) * 0.0005, 0.035);
-                    const next = Math.min(1, Math.max(0, current + delta));
-                    rawProgress.set(next);
+                    rawProgress.set(Math.min(1, Math.max(0, current + delta)));
                 }
             }
         };
 
-        window.addEventListener("wheel", handleWheel, { passive: false });
-        return () => window.removeEventListener("wheel", handleWheel);
+        // ── TOUCH (PHONE / TABLET) ─────────────────────────────────────────────
+        let touchStartY = 0;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            touchStartY = e.touches[0].clientY;
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (window.scrollY > 10) return;
+            const current = rawProgress.get();
+            const smooth = smoothProgress.get();
+            const deltaY = touchStartY - e.touches[0].clientY; // positive = swipe up = scroll down
+            touchStartY = e.touches[0].clientY;
+
+            if (current < 0.98 || smooth < 0.94) {
+                // Tunnel still running — consume the touch, advance progress
+                e.preventDefault();
+                window.scrollTo(0, 0);
+                const step = Math.sign(deltaY) * Math.min(Math.abs(deltaY) * 0.004, 0.04);
+                rawProgress.set(Math.min(1, Math.max(0, current + step)));
+                return;
+            }
+            // Tunnel complete — swipe up allows native scroll, swipe down reverses
+            if (deltaY < 0) {
+                e.preventDefault();
+                const step = Math.sign(deltaY) * Math.min(Math.abs(deltaY) * 0.004, 0.04);
+                rawProgress.set(Math.min(1, Math.max(0, current + step)));
+            }
+        };
+
+        // ── KEYBOARD (Arrow keys, Space, Page Up/Down) ─────────────────────────
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (window.scrollY > 10) return;
+            const current = rawProgress.get();
+            const smooth = smoothProgress.get();
+
+            const forwardKeys = ["ArrowDown", "ArrowRight", "PageDown", " "];
+            const backKeys    = ["ArrowUp",   "ArrowLeft",  "PageUp"];
+
+            const isForward = forwardKeys.includes(e.key);
+            const isBack    = backKeys.includes(e.key);
+
+            if (!isForward && !isBack) return;
+
+            if (current < 0.98 || smooth < 0.94) {
+                e.preventDefault();
+                const step = isForward ? 0.06 : -0.06;
+                rawProgress.set(Math.min(1, Math.max(0, current + step)));
+                return;
+            }
+            // Tunnel complete: only intercept backward keys to let forward scroll through
+            if (isBack) {
+                e.preventDefault();
+                rawProgress.set(Math.min(1, Math.max(0, current - 0.06)));
+            }
+        };
+
+        window.addEventListener("wheel",      handleWheel,     { passive: false });
+        window.addEventListener("touchstart", handleTouchStart, { passive: true  });
+        window.addEventListener("touchmove",  handleTouchMove,  { passive: false });
+        window.addEventListener("keydown",    handleKeyDown,    { passive: false });
+
+        return () => {
+            window.removeEventListener("wheel",      handleWheel);
+            window.removeEventListener("touchstart", handleTouchStart);
+            window.removeEventListener("touchmove",  handleTouchMove);
+            window.removeEventListener("keydown",    handleKeyDown);
+        };
     }, [rawProgress, smoothProgress]);
 
     const pointer = useCameraParallax(!reduce);
@@ -449,7 +506,8 @@ export default function PerspectiveTunnelHero() {
                 style={{ opacity: promptOpacity }}
                 className="pointer-events-none absolute bottom-12 z-20 flex flex-col items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#8c7e6c]"
             >
-                <span>Scroll to explore the library</span>
+                <span className="hidden sm:block">Scroll to explore the library</span>
+                <span className="block sm:hidden">Swipe up to explore</span>
                 <div className="h-7 w-px bg-gradient-to-b from-[#b45309] to-transparent animate-pulse" />
             </motion.div>
 
