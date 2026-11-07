@@ -274,6 +274,14 @@ export default function PerspectiveTunnelHero() {
         restDelta: 0.0001,
     });
 
+    const [progressPercent, setProgressPercent] = useState(0);
+
+    useEffect(() => {
+        return smoothProgress.on("change", (latest) => {
+            setProgressPercent(Math.round(latest * 100));
+        });
+    }, [smoothProgress]);
+
     useEffect(() => {
         // ── MOUSE WHEEL ────────────────────────────────────────────────────────
         const handleWheel = (e: WheelEvent) => {
@@ -369,13 +377,12 @@ export default function PerspectiveTunnelHero() {
 
     const pointer = useCameraParallax(!reduce);
 
-    // Initial state: center text & circular guides are faded.
+    // Initial state: center text & circular guides are clear.
     // When scrolling down: smoothly brought into dramatic spotlight!
-    const titleScale = useTransform(smoothProgress, [0, 0.5, 0.85], [0.93, 0.98, 1.05]);
-    const titleOpacity = useTransform(smoothProgress, [0, 0.45, 0.85], [0.28, 0.70, 1]);
-    const ringsOpacity = useTransform(smoothProgress, [0, 0.5, 0.85], [0.18, 0.55, 0.9]);
-    const spotlightOpacity = useTransform(smoothProgress, [0, 0.5, 0.85], [0.10, 0.50, 0.95]);
-    const promptOpacity = useTransform(smoothProgress, [0, 0.25], [1, 0]);
+    const titleScale = useTransform(smoothProgress, [0, 0.5, 0.85], [0.96, 1.0, 1.05]);
+    const titleOpacity = useTransform(smoothProgress, [0, 0.45, 0.85], [0.80, 0.92, 1]);
+    const ringsOpacity = useTransform(smoothProgress, [0, 0.5, 0.85], [0.25, 0.60, 0.9]);
+    const spotlightOpacity = useTransform(smoothProgress, [0, 0.5, 0.85], [0.15, 0.55, 0.95]);
 
     // Bottom progress bar: moves to the right as you scroll and gets covered completely at 100%
     const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
@@ -490,36 +497,111 @@ export default function PerspectiveTunnelHero() {
                     A calm, offline-first sanctuary for longform thinkers, digital gardens, and indie blogs. Discovered through human reader overlap, never corporate tracking.
                 </p>
 
-                {/* Centered Immediate Action Button */}
-                <div className="pointer-events-auto mt-8 flex justify-center z-20">
-                    <Link
-                        href="/reader"
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#b45309] hover:bg-[#92400e] text-white font-serif font-medium text-sm transition-all shadow-md shadow-[#b45309]/20 hover:scale-105"
+                {/* Centered Action Buttons & Prominent Scroll Hint */}
+                <div className="pointer-events-auto mt-8 flex flex-col items-center gap-3.5 z-20">
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/reader"
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#b45309] hover:bg-[#92400e] text-white font-serif font-medium text-sm transition-all shadow-md shadow-[#b45309]/20 hover:scale-105"
+                        >
+                            <span>Get Started</span> <ArrowRight className="w-4 h-4 text-white" />
+                        </Link>
+                        <button
+                            type="button"
+                            onClick={handleSoftScroll}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-serif font-medium transition-all shadow-xs hover:scale-105 cursor-pointer ${
+                                isDark
+                                    ? "bg-[#1c1916]/85 hover:bg-[#25211c] border-[#38332c] text-[#d6c7b0]"
+                                    : "bg-[#f5eee3]/90 hover:bg-[#ede3d1] border-[#d8ccb8] text-[#574e44]"
+                            }`}
+                        >
+                            <span>Explore Architecture</span>
+                            <ChevronDown className="w-4 h-4 text-[#b45309]" />
+                        </button>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleSoftScroll}
+                        className={`group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                            isDark ? "text-[#c2b6a6] hover:text-white" : "text-[#695d4f] hover:text-[#1f1c19]"
+                        }`}
                     >
-                        <span>Get Started</span> <ArrowRight className="w-4 h-4 text-white" />
-                    </Link>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#b45309] animate-pulse" />
+                        <span>Interactive 3D tunnel below • Scroll down or click to dive in</span>
+                        <ChevronDown className="w-3.5 h-3.5 text-[#b45309] group-hover:translate-y-0.5 transition-transform" />
+                    </button>
                 </div>
             </motion.div>
 
-            {/* Warm Quill Scroll Prompt */}
-            <motion.div
-                style={{ opacity: promptOpacity }}
-                className="pointer-events-none absolute bottom-12 z-20 flex flex-col items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#8c7e6c]"
-            >
-                <span className="hidden sm:block">Scroll to explore the library</span>
-                <span className="block sm:hidden">Swipe up to explore</span>
-                <div className="h-7 w-px bg-gradient-to-b from-[#b45309] to-transparent animate-pulse" />
-            </motion.div>
+            {/* Prominent Floating Scroll Instruction & 3D Navigation Cue */}
+            <motion.div className="pointer-events-auto absolute bottom-5 sm:bottom-7 z-30 flex flex-col items-center gap-2 max-w-[94vw] sm:max-w-lg mx-auto">
+                <button
+                    type="button"
+                    onClick={handleSoftScroll}
+                    className={`group relative flex items-center gap-3.5 px-5 py-3 sm:py-3.5 rounded-2xl border transition-all duration-300 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-md ${
+                        isDark
+                            ? "bg-[#181512]/95 border-[#3d362e] text-[#f5efe6] shadow-[0_12px_36px_rgba(0,0,0,0.65)] hover:border-[#b45309]/70 hover:bg-[#201c18]"
+                            : "bg-[#fffdfa]/95 border-[#d6c4ad] text-[#1f1c19] shadow-[0_14px_40px_rgba(180,83,9,0.18)] hover:border-[#b45309]/60 hover:bg-[#fffbf5]"
+                    }`}
+                    title="Scroll down or click to travel through the 3D library"
+                >
+                    {/* Animated Mouse Icon (Desktop) & Animated Down Arrow (Mobile) */}
+                    <div className="relative flex items-center justify-center shrink-0">
+                        {/* Mouse outline */}
+                        <div className="hidden sm:flex w-5 h-8 rounded-full border-2 border-[#b45309] items-start justify-center p-1 shadow-inner">
+                            <motion.div
+                                animate={{ y: [0, 8, 0], opacity: [1, 0.35, 1] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                className="w-1.5 h-1.5 rounded-full bg-[#b45309]"
+                            />
+                        </div>
+                        {/* Mobile Touch Pulse */}
+                        <div className="sm:hidden w-8 h-8 rounded-full bg-[#b45309]/15 flex items-center justify-center text-[#b45309]">
+                            <ChevronDown className="w-5 h-5 animate-bounce" />
+                        </div>
+                    </div>
 
-            {/* Quick Explore Anchor with Soft Smooth Scroll */}
-            <button
-                type="button"
-                onClick={handleSoftScroll}
-                className="pointer-events-auto absolute bottom-4 z-30 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f3ecdf]/95 border border-[#e2d6c3] text-[11px] font-mono text-[#786b59] hover:text-[#b45309] hover:bg-[#fffdfa] transition-all shadow-xs backdrop-blur-sm cursor-pointer"
-            >
-                <span>Explore System Architecture</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#b45309] animate-bounce" />
-            </button>
+                    {/* Explanatory Content */}
+                    <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#b45309] opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#b45309]"></span>
+                            </span>
+                            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider font-semibold text-[#b45309]">
+                                {progressPercent === 0
+                                    ? "Interactive 3D Experience"
+                                    : progressPercent < 95
+                                    ? `Navigating 3D Library • ${progressPercent}%`
+                                    : "3D Tunnel Complete"}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-xs sm:text-sm font-serif font-medium leading-tight">
+                                <span className="hidden sm:inline">
+                                    {progressPercent >= 95
+                                        ? "Scroll or click to view System Architecture"
+                                        : "Scroll down to fly through the 3D library"}
+                                </span>
+                                <span className="inline sm:hidden">
+                                    {progressPercent >= 95
+                                        ? "Swipe up for Architecture & Details"
+                                        : "Swipe up to explore the 3D library"}
+                                </span>
+                            </span>
+                            <ChevronDown className="w-4 h-4 text-[#b45309] transition-transform group-hover:translate-y-0.5 animate-bounce shrink-0" />
+                        </div>
+
+                        <p className={`hidden sm:block text-[11px] font-mono mt-0.5 ${isDark ? "text-[#a89d8f]" : "text-[#786b59]"}`}>
+                            {progressPercent >= 95
+                                ? "Detailed features, comparisons & offline sync below"
+                                : "Use mouse wheel, trackpad, or ↓ arrow keys • Click to jump down"}
+                        </p>
+                    </div>
+                </button>
+            </motion.div>
 
             {/* 3D Z-Space Blog Tunnel Cards */}
             <div
@@ -539,7 +621,9 @@ export default function PerspectiveTunnelHero() {
             </div>
 
             {/* Bottom 3D Tunnel Progress Bar: moves right and fills completely when animation finishes */}
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#e8dfd3]/80 z-40 overflow-hidden">
+            <div className={`absolute bottom-0 left-0 right-0 h-1.5 z-40 overflow-hidden ${
+                isDark ? "bg-[#25211c]" : "bg-[#e8dfd3]/80"
+            }`}>
                 <motion.div
                     style={{ width: progressWidth }}
                     className="h-full bg-gradient-to-r from-[#d97706] via-[#b45309] to-[#78350f] shadow-[0_0_10px_rgba(217,119,6,0.7)]"
